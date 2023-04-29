@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/scrypt"
 	"log"
 )
@@ -131,10 +132,26 @@ var characters = map[string]string{
 	" ": " ",
 }
 
-func newSiteResult(username string, password string, site string, keyCounter int, keyPurpose string, keyType string) string {
-	userKey := newUserKey(username, password, keyPurpose)
-	siteKey := newSiteKey(userKey, site, keyCounter, keyPurpose, "")
-	resTemplates := templates[keyType]
+type GenSiteParam struct {
+	Username   string `json:"username" validate:"required"`
+	Password   string `json:"password" validate:"required"`
+	Site       string `json:"site" validate:"required"`
+	KeyCounter int    `json:"keyCounter"`
+	KeyPurpose string `json:"keyPurpose" validate:"required"`
+	KeyType    string `json:"keyType" validate:"required"`
+}
+
+func NewSiteResult(params GenSiteParam) string {
+	validate := validator.New()
+	err := validate.Struct(params)
+
+	if err != nil {
+		panic("Validation failed")
+	}
+
+	userKey := newUserKey(params.Username, params.Password, params.KeyPurpose)
+	siteKey := newSiteKey(userKey, params.Site, params.KeyCounter, params.KeyPurpose, "")
+	resTemplates := templates[params.KeyType]
 	resTemplate := resTemplates[int(siteKey[0])%len(resTemplates)]
 	passRes := ""
 	for i := 0; i < len(resTemplate); i++ {
