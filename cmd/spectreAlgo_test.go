@@ -10,16 +10,14 @@ import (
 )
 
 func BenchmarkNewSiteResult(b *testing.B) {
-	params := GenSiteParam{
-		Username:   "a",
-		Password:   "a",
-		Site:       "twitter.com",
-		KeyPurpose: "com.lyndir.masterpassword",
-		KeyCounter: 1,
-		KeyType:    "med",
-	}
-	for i := 0; i < b.N; i++ {
-		NewSiteResult(params)
+	parameters := generateMedParams()
+
+	for x := range parameters {
+		b.Run(fmt.Sprintf("Benchmark [%v]", x), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				NewSiteResult(parameters[x].input)
+			}
+		})
 	}
 }
 
