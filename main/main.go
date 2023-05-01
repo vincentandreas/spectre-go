@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"spectre-go/cmd"
+	"spectre-go/models"
 )
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +18,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func processGenPasswd(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	var genParams cmd.GenSiteParam
+	var genParams models.GenSiteParam
 	json.Unmarshal(reqBody, &genParams)
 
 	genResult := cmd.NewSiteResult(genParams)

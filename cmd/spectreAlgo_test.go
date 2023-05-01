@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"spectre-go/models"
 	"strconv"
 	"strings"
 	"testing"
@@ -36,7 +37,7 @@ func TestNewSiteResultParameters(t *testing.T) {
 }
 
 type SingleIe struct {
-	input    GenSiteParam
+	input    models.GenSiteParam
 	expected string
 }
 
@@ -56,7 +57,7 @@ func generateMedParams() []SingleIe {
 		parsedKeyCtr, _ := strconv.ParseInt(inputSplit[4], 10, 64)
 
 		temp := SingleIe{
-			GenSiteParam{
+			models.GenSiteParam{
 				Username:   inputSplit[0],
 				Password:   inputSplit[1],
 				Site:       inputSplit[2],

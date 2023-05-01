@@ -7,7 +7,10 @@ import (
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/scrypt"
 	"log"
+	"spectre-go/models"
 )
+
+var tempCache = make(map[string]string)
 
 func convBigEndian(numb int) []byte {
 	numbByte := make([]byte, 4)
@@ -123,21 +126,19 @@ var characters = map[string]string{
 	" ": " ",
 }
 
-type GenSiteParam struct {
-	Username   string `json:"username" validate:"required"`
-	Password   string `json:"password" validate:"required"`
-	Site       string `json:"site" validate:"required"`
-	KeyCounter int    `json:"keyCounter"`
-	KeyPurpose string `json:"keyPurpose" validate:"required"`
-	KeyType    string `json:"keyType" validate:"required"`
-}
-
-func NewSiteResult(params GenSiteParam) string {
+func NewSiteResult(params models.GenSiteParam) string {
 	validate := validator.New()
 	err := validate.Struct(params)
 
 	if err != nil {
 		panic("Validation failed")
+	}
+
+	hashedKey := hashParams(params)
+	preComputed, isExist := tempCache[hashedKey]
+
+	if isExist {
+		return preComputed
 	}
 
 	userKey := newUserKey(params.Username, params.Password, params.KeyPurpose)
@@ -150,5 +151,8 @@ func NewSiteResult(params GenSiteParam) string {
 		idx := int(siteKey[i+1]) % len(currChar)
 		passRes += string([]rune(currChar)[idx])
 	}
+
+	tempCache[hashedKey] = passRes
+
 	return passRes
 }
