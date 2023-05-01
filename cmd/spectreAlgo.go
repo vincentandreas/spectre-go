@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/binary"
-	"fmt"
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/scrypt"
 	"log"
@@ -39,10 +38,6 @@ func newUserKey(username string, password string, purpose string) []byte {
 	userKeyData, err := scrypt.Key(passwordBytes, userSalt, 32768, 8, 2, 64)
 	if err != nil {
 		log.Fatal(err)
-	}
-	fmt.Println("Key result : ")
-	for _, data := range userKeyData {
-		fmt.Print(data, " ")
 	}
 	return userKeyData
 }
@@ -86,10 +81,6 @@ func newSiteKey(userKeyCrypto []byte, siteName string, keyCounter int, purpose s
 
 	// Get result and encode as hexadecimal string
 	keyData := h.Sum(nil)
-	fmt.Println("----------------------------")
-	for _, data := range keyData {
-		fmt.Print(data, ".")
-	}
 	return keyData
 }
 
@@ -159,6 +150,5 @@ func NewSiteResult(params GenSiteParam) string {
 		idx := int(siteKey[i+1]) % len(currChar)
 		passRes += string([]rune(currChar)[idx])
 	}
-	fmt.Println("pass ress = " + passRes)
 	return passRes
 }
