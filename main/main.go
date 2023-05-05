@@ -1,41 +1,37 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"spectre-go/cmd"
-	"spectre-go/models"
+	"os"
+	"spectre-go/controllers"
+	"spectre-go/repo"
 )
 
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("Endpoint Hit: homePage")
-}
+var rdb *redis.Client
 
-func processGenPasswd(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var genParams models.GenSiteParam
-	json.Unmarshal(reqBody, &genParams)
-
-	genResult := cmd.NewSiteResult(genParams)
-	temp := map[string]string{
-		"result": genResult,
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(temp)
-}
-
-func handleRequests() {
+func handleRequests(h *controllers.BaseHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/api/getPassword", processGenPasswd).Methods("POST")
+	router.HandleFunc("/api/getPassword", h.ProcessGenPasswd).Methods("POST")
 	log.Fatal(http.ListenAndServe(":10000", router))
 }
 
 func main() {
-	handleRequests()
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_HOST"),
+		Password: os.Getenv("REDIS_PASSWD"),
+		DB:       0,
+	})
+	log.Printf("Redis client initialized")
+
+	siteResultRepo := repo.NewSiteResultRepo(client)
+
+	h := controllers.NewBaseHandler(siteResultRepo)
+
+	handleRequests(h)
+
 }

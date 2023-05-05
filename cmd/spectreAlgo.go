@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/binary"
-	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/scrypt"
 	"log"
 	"spectre-go/models"
@@ -127,19 +126,7 @@ var characters = map[string]string{
 }
 
 func NewSiteResult(params models.GenSiteParam) string {
-	validate := validator.New()
-	err := validate.Struct(params)
-
-	if err != nil {
-		panic("Validation failed")
-	}
-
-	hashedKey := hashParams(params)
-	preComputed, isExist := tempCache[hashedKey]
-
-	if isExist {
-		return preComputed
-	}
+	log.Printf("Running NewSiteResult")
 
 	userKey := newUserKey(params.Username, params.Password, params.KeyPurpose)
 	siteKey := newSiteKey(userKey, params.Site, params.KeyCounter, params.KeyPurpose, "")
@@ -152,7 +139,7 @@ func NewSiteResult(params models.GenSiteParam) string {
 		passRes += string([]rune(currChar)[idx])
 	}
 
-	tempCache[hashedKey] = passRes
+	//tempCache[hashedKey] = passRes
 
 	return passRes
 }

@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func hashParams(param models.GenSiteParam) string {
+func HashParams(param models.GenSiteParam) string {
 	h := sha256.New()
 	keys := "uname:" + param.Username + "|passwd:" + param.Password +
 		"|site:" + param.Site + "|keyCtr:" + strconv.Itoa(param.KeyCounter) + "|keyPurpose:" + param.KeyPurpose + "|keyType:" + param.KeyType
