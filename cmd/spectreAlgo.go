@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/scrypt"
 	"log"
 	"spectre-go/models"
+	"strings"
 )
 
 var tempCache = make(map[string]string)
@@ -111,6 +112,29 @@ var templates = map[string][]string{
 		"CvccCvcvnoCvcc",
 		"CvccCvcvCvccno",
 	},
+	"max": {
+		"anoxxxxxxxxxxxxxxxxx",
+		"axxxxxxxxxxxxxxxxxno",
+	},
+	"short": {
+		"Cvcn",
+	},
+	"basic": {
+		"aaanaaan",
+		"aannaaan",
+		"aaannaaa",
+	},
+	"pin": {
+		"nnnn",
+	},
+	"name": {
+		"cvccvcvcv",
+	},
+	"phrase": {
+		"cvcc cvc cvccvcv cvc",
+		"cvc cvccvcvcv cvcv",
+		"cv cvccv cvc cvcvccv",
+	},
 }
 var characters = map[string]string{
 	"V": "AEIOU",
@@ -132,14 +156,14 @@ func NewSiteResult(params models.GenSiteParam) string {
 	siteKey := newSiteKey(userKey, params.Site, params.KeyCounter, params.KeyPurpose, "")
 	resTemplates := templates[params.KeyType]
 	resTemplate := resTemplates[int(siteKey[0])%len(resTemplates)]
-	passRes := ""
+	var passRes strings.Builder
 	for i := 0; i < len(resTemplate); i++ {
 		currChar := characters[string(resTemplate[i])]
 		idx := int(siteKey[i+1]) % len(currChar)
-		passRes += string([]rune(currChar)[idx])
+		passRes.WriteRune([]rune(currChar)[idx])
 	}
 
 	//tempCache[hashedKey] = passRes
 
-	return passRes
+	return passRes.String()
 }

@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"testing"
 )
 
 func BenchmarkNewSiteResult(b *testing.B) {
 	parameters := GenerateMedParams()
+	log.SetOutput(ioutil.Discard)
 
 	for x := range parameters {
 		b.Run(fmt.Sprintf("Benchmark [%v]", x), func(b *testing.B) {
