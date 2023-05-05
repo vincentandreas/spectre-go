@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/go-redis/redis/v8"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
@@ -11,13 +10,6 @@ import (
 )
 
 var rdb *redis.Client
-
-func handleRequests(h *controllers.BaseHandler) {
-	router := mux.NewRouter().StrictSlash(true)
-
-	router.HandleFunc("/api/getPassword", h.ProcessGenPasswd).Methods("POST")
-	log.Fatal(http.ListenAndServe(":10000", router))
-}
 
 func main() {
 
@@ -32,6 +24,5 @@ func main() {
 
 	h := controllers.NewBaseHandler(siteResultRepo)
 
-	handleRequests(h)
-
+	log.Fatal(http.ListenAndServe(":10000", controllers.HandleRequests(h)))
 }

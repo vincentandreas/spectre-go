@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,15 +15,34 @@ type BaseHandler struct {
 	repo models.SiteResultRepository
 }
 
+func HandleRequests(h *BaseHandler) *mux.Router {
+	router := mux.NewRouter().StrictSlash(true)
+
+	router.HandleFunc("/api/getPassword", h.ProcessGenPasswd).Methods("POST")
+
+	router.HandleFunc("/api/health", h.CheckHealth).Methods("GET")
+
+	return router
+}
+
 func NewBaseHandler(repo models.SiteResultRepository) *BaseHandler {
 	return &BaseHandler{
 		repo: repo,
 	}
 }
 
+func (h *BaseHandler) CheckHealth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	temp := map[string]string{
+		"result": "OK",
+	}
+	json.NewEncoder(w).Encode(temp)
+}
+
 func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {
 	log.Printf("--- Begin Process gen password ---")
 	w.Header().Set("Content-Type", "application/json")
+	utilizeCache := r.Header.Get("Utilize-Cache")
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	var genParams models.GenSiteParam
@@ -34,25 +54,29 @@ func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic("Validation failed")
 	}
+	var hashedKey string
+	if utilizeCache == "true" {
+		hashedKey = cmd.HashParams(genParams)
 
-	hashedKey := cmd.HashParams(genParams)
+		log.Printf("Finding from Cache...")
+		cacheRes := h.repo.FindSiteResult(hashedKey)
 
-	log.Printf("Finding from Cache...")
-	cacheRes := h.repo.FindSiteResult(hashedKey)
-
-	if cacheRes != "" {
-		log.Printf("Cache found!")
-		temp := map[string]string{
-			"result": cacheRes,
+		if cacheRes != "" {
+			log.Printf("Cache found!")
+			temp := map[string]string{
+				"result": cacheRes,
+			}
+			json.NewEncoder(w).Encode(temp)
+			return
 		}
-		json.NewEncoder(w).Encode(temp)
-		return
 	}
 
 	genResult := cmd.NewSiteResult(genParams)
 
-	log.Printf("Saving to cache")
-	h.repo.Save(hashedKey, genResult)
+	if utilizeCache == "true" {
+		log.Printf("Saving to cache")
+		h.repo.Save(hashedKey, genResult)
+	}
 
 	temp := map[string]string{
 		"result": genResult,
