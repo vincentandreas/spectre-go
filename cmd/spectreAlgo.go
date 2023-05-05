@@ -163,7 +163,5 @@ func NewSiteResult(params models.GenSiteParam) string {
 		passRes.WriteRune([]rune(currChar)[idx])
 	}
 
-	//tempCache[hashedKey] = passRes
-
 	return passRes.String()
 }
