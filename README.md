@@ -36,7 +36,12 @@ You'll get the same generated password.
 
 I made this using go language, to generate the password, you'll need to send the request via REST API, or you can modify the code, so you can do that locally.
 
-Example request:
+Header:
+```
+Utilize-Cache : [true | false]
+```
+
+Body:
 ```json
 {
     "username":"a",
@@ -46,6 +51,14 @@ Example request:
     "keyPurpose":"com.lyndir.masterpassword",
     "keyType":"long"
 }
+```
+```
+username    = your username
+password    = your master password (spectre secret)
+site        = site that you want to generate
+keyCounter  = counter for generating different password from the same site 
+keyPurpose  = com.lyndir.masterpassword
+keyType     = [med | long | max | short | basic | pin | name | phrase]
 ```
 
 Example response:
@@ -59,6 +72,7 @@ Result example:
 
 ![Go version - long](docs/long-go.png)
 ![Go version - med](docs/med-go.png)
+
 The official one:
 
 ![Ofc version - long](docs/long-web.png)
@@ -101,7 +115,7 @@ func NewSiteResult(params models.GenSiteParam) string {
 ```
 ### Different with the official one:
 #### Using REST API
-It's based on REST API for generate the password. Sure, it's not as safe as generated locally.
+The original one have the web view, but I haven’t implemented that, so I choose to make that as a REST API. It’s not as safe as generating locally, for sure.
 
 #### Caching using Redis
 I'm doing experiment, by using redis for saving generated password temporarly, 
@@ -109,32 +123,29 @@ it's boost the speed when doing the generating for the same password, again, and
 
 Benchmark result (with same payload, without cache)
 ```
-BenchmarkNewSiteResult/Benchmark_[0]-8                 9         117841211 ns/op
-BenchmarkNewSiteResult/Benchmark_[1]-8                 9         122222889 ns/op
-BenchmarkNewSiteResult/Benchmark_[2]-8                 8         132624288 ns/op
-BenchmarkNewSiteResult/Benchmark_[3]-8                 8         143758375 ns/op
+Benchmark_intTest_genPassword_withOutCache-8           5         254846040 ns/op
 ```
 Benchmark result (with same payload, using redis)
 ```
-BenchmarkNewSiteResult/Benchmark_[0]-8             51892             21860 ns/op
-BenchmarkNewSiteResult/Benchmark_[1]-8             49790             21805 ns/op
-BenchmarkNewSiteResult/Benchmark_[2]-8             49364             23251 ns/op
-BenchmarkNewSiteResult/Benchmark_[3]-8             53013             21976 ns/op
+Benchmark_intTest_genPassword_withCache-8              8         125318125 ns/op
 ```
 
-After doing this, I wondering, save cache feature could really affect the performance, when all of the payload different? So I'm experimenting, by using random UUID as the payload, and here's the benchmark result:
+After doing this, I was wondering, does the save cache feature really affect the performance, when all of the payload is different? So I'm experimenting, by using random UUID as the payload, to create different payload and here's the benchmark result:
 ```
-Benchmark_intTest_genPassword_withCache-8              4         258348300 ns/op
-Benchmark_intTest_genPassword_withOutCache-8           4         253538875 ns/op
+Benchmark_intTest_genPassword_withCache-8              4         264977950 ns/op
+Benchmark_intTest_genPassword_withOutCache-8           5         254846040 ns/op
+
 ```
 
 
 ### Future work:
 - Implement HTTPS, you don't want your plain password intercepted by someone (at least your own Burpsuite) right? 
-- Creating docker image, so you can run the container, in CLI / REST mode
+- Create docker image, so you can run the container, in CLI / REST mode
 - Edit the API request structure. 
-- Adding more feature, validation and enhance the code
-- Creating a nice web GUI. Nice GUI definition for me is: you can use the web easily. You don't have to be worry with the fancy animation effect, color. I won't create that. 
+- Adding more feature, and enhance the code
+- Creating a nice web view. Nice view definition for me is: you can use the web easily. You don't have to be worry with the fancy animation effect, color. I won't create that. 
 
 ### Credit:
 https://gitlab.com/spectre.app
+https://tutorialedge.net/golang/go-encrypt-decrypt-aes-tutorial/
+https://medium.com/insiderengineering/integration-test-in-golang-899412b7e1bf
