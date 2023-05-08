@@ -5,7 +5,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -59,17 +59,24 @@ func Test_genPassword(t *testing.T) {
 		url := fmt.Sprintf("%s/api/getPassword", ts.URL)
 		contentType := "application/json"
 		body := generateBody()
-		resp, err := http.Post(url, contentType, strings.NewReader(body))
-		if err != nil {
-			t.Fatalf("Expected no error, got %v", err)
+		//resp, err := http.Post(url, contentType, strings.NewReader(body))
+
+		headers := map[string]interface{}{
+			"Content-Type":  contentType,
+			"Utilize-Cache": "true",
 		}
-		bodyBytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		respBody := string(bodyBytes)
+		restResult := (rest.RestClient{}).Post(
+			rest.RestRequest{
+				Path:    url,
+				Headers: headers,
+				Body:    []byte(body),
+				Method:  "POST",
+			},
+		)
+
+		respBody := restResult.Body
 		respBody = strings.TrimSuffix(fmt.Sprintf("%s", respBody), "\n")
-		log.Printf("Isi body " + respBody)
+		log.Printf("Body content " + respBody)
 		assert.Equal(t, respBody, `{"result":"Mat4;Noq"}`)
 	})
 }
@@ -85,10 +92,9 @@ func Benchmark_intTest_genPassword_withCache(b *testing.B) {
 		"Utilize-Cache": "true",
 	}
 
-	//log.SetOutput(ioutil.Discard)
+	log.SetOutput(ioutil.Discard)
 	for i := 0; i < b.N; i++ {
-		body := generateFakeBody()
-		http.Post(url, contentType, strings.NewReader(body))
+		body := generateBody()
 		(rest.RestClient{}).Post(
 			rest.RestRequest{
 				Path:    url,
@@ -111,9 +117,9 @@ func Benchmark_intTest_genPassword_withOutCache(b *testing.B) {
 		"Utilize-Cache": "false",
 	}
 
-	//log.SetOutput(ioutil.Discard)
+	log.SetOutput(ioutil.Discard)
 	for i := 0; i < b.N; i++ {
-		body := generateFakeBody()
+		body := generateBody()
 		http.Post(url, contentType, strings.NewReader(body))
 		(rest.RestClient{}).Post(
 			rest.RestRequest{

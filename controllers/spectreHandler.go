@@ -60,11 +60,12 @@ func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {
 
 		log.Printf("Finding from Cache...")
 		cacheRes := h.repo.FindSiteResult(hashedKey)
-
-		if cacheRes != "" {
+		log.Printf("Raw Cache = " + cacheRes)
+		cacheContent := cmd.DecryptContent(genParams.Username, genParams.Password, cacheRes)
+		if cacheContent != "" {
 			log.Printf("Cache found!")
 			temp := map[string]string{
-				"result": cacheRes,
+				"result": cacheContent,
 			}
 			json.NewEncoder(w).Encode(temp)
 			return
@@ -75,7 +76,10 @@ func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {
 
 	if utilizeCache == "true" {
 		log.Printf("Saving to cache")
-		h.repo.Save(hashedKey, genResult)
+
+		encResult := cmd.EncryptContent(genParams.Username, genParams.Password, genResult)
+		log.Printf("Encrypted content : " + encResult)
+		h.repo.Save(hashedKey, encResult)
 	}
 
 	temp := map[string]string{
