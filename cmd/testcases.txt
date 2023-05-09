@@ -1,4 +1,9 @@
-a,a,twitter.com,com.lyndir.masterpassword,1,med,RevXep5+,OhbMbAM9WJYVewCEfzz-UhwS6vLfAWwdKWBUueha-lY=
-a,a,twitter.com,com.lyndir.masterpassword,1,long,RevoGupsWunl3-,OnyAS3vdw1dShKgvn4qSF0VOGWVssx_Je8WbYrb5JQU=
-apho,apho,periplus23.com,com.lyndir.masterpassword,23,long,SujaCupt8:Yovu,xvAHElc_wJpOnqGZtjrO14ti2TDQa8uE8GpekctPDv8=
-apho,apho,fb.com,com.lyndir.masterpassword,1,long,HargWujtSuya3-,7_FoSc8ShxV9BmUAbLbenp_WZgzYw0mD0hpzaBQmaYQ=
+a,a,twitter.com,password,1,med,RevXep5+,61N5hHTAi01IPQax1N96ucNCHmbfPHAzj9r_Ou9A7fk=
+a,a,twitter.com,password,1,long,RevoGupsWunl3-,TlksApO4Nd-8yjYvpWplI261Nx8VCPB9g2op4wqQ4Cg=
+a,a,twitter.com,password,1,phrase,re xeppa lel catesxu,ekd9Yixg3-pLuROg9tKV1Lrkveu80IvE1r_zXrMn7T8=
+apho,apho,periplus23.com,password,23,long,SujaCupt8:Yovu,m5p5vBnpSIn4VP4HdaMW3EMRDt-nPjgN5howeLRNKgo=
+apho,apho,fb.com,password,1,long,HargWujtSuya3-,mS0emTgzK6unmkniYcCtGe8EnA9B8Aeha7uR7xvPtJE=
+a,a,twitter.com,loginName,1,name,bimfoyadu,xKGJDNQSAm1lk_40pWAsvxGIdcseSHmOtqucdGdK14k=
+a,a,twitter.com,loginName,3,name,siksaxopi,H7rwp1p0YEwHe1ybbs82ZY6lfUGI9EwZrNm8c3AM6To=
+a,a,twitter.com,answer,1,phrase,req rojmolufi qamu,8HUjRC3Vdw5-ru7YbSij1tpo1I7YI8arbgnfzzZYxXw=
+a,a,twitter.com,answer,1,long,ReqaRoju8#Cumt,YhsoY9HF0m8hvAN9JaHWaqWEApRQtQy6YJIeCm6Dwj0=

@@ -56,7 +56,7 @@ func Test_genPassword(t *testing.T) {
 	})
 
 	t.Run("It should return correct password result", func(t *testing.T) {
-		url := fmt.Sprintf("%s/api/getPassword", ts.URL)
+		url := fmt.Sprintf("%s/api/generatePassword", ts.URL)
 		contentType := "application/json"
 		body := generateBody()
 		//resp, err := http.Post(url, contentType, strings.NewReader(body))
@@ -77,14 +77,14 @@ func Test_genPassword(t *testing.T) {
 		respBody := restResult.Body
 		respBody = strings.TrimSuffix(fmt.Sprintf("%s", respBody), "\n")
 		log.Printf("Body content " + respBody)
-		assert.Equal(t, respBody, `{"result":"Mat4;Noq"}`)
+		assert.Equal(t, respBody, `{"result":"Mat4;Noq","responseCode":"00","responseMessage":"Success"}`)
 	})
 }
 
 func Benchmark_intTest_genPassword_withCache(b *testing.B) {
 	ts := runTestServer()
 	defer ts.Close()
-	url := fmt.Sprintf("%s/api/getPassword", ts.URL)
+	url := fmt.Sprintf("%s/api/generatePassword", ts.URL)
 	contentType := "application/json"
 
 	headers := map[string]interface{}{
@@ -109,7 +109,7 @@ func Benchmark_intTest_genPassword_withCache(b *testing.B) {
 func Benchmark_intTest_genPassword_withOutCache(b *testing.B) {
 	ts := runTestServer()
 	defer ts.Close()
-	url := fmt.Sprintf("%s/api/getPassword", ts.URL)
+	url := fmt.Sprintf("%s/api/generatePassword", ts.URL)
 	contentType := "application/json"
 
 	headers := map[string]interface{}{
@@ -138,7 +138,7 @@ func generateBody() string {
 		"password":"acde",
 		"site":"twitter.com",
 		"keyCounter":1,
-		"keyPurpose":"com.lyndir.masterpassword",
+		"keyPurpose":"password",
 		"keyType":"med" }`)
 }
 
@@ -150,7 +150,7 @@ func generateFakeBody() string {
 		"password":"%s",
 		"site":"%s",
 		"keyCounter":1,
-		"keyPurpose":"com.lyndir.masterpassword",
+		"keyPurpose":"password",
 		"keyType":"med" }`, idstr, idstr, idstr)
 }
 

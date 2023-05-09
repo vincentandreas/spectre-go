@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -18,7 +19,7 @@ type BaseHandler struct {
 func HandleRequests(h *BaseHandler) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/api/getPassword", h.ProcessGenPasswd).Methods("POST")
+	router.HandleFunc("/api/generatePassword", h.ProcessGenPasswd).Methods("POST")
 
 	router.HandleFunc("/api/health", h.CheckHealth).Methods("GET")
 
@@ -52,7 +53,11 @@ func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {
 	err := validate.Struct(genParams)
 
 	if err != nil {
-		panic("Validation failed")
+		fmt.Println("Validation failed")
+		w.WriteHeader(http.StatusBadRequest)
+		temp := models.ApiResponse{"", "01", "Request not valid"}
+		json.NewEncoder(w).Encode(temp)
+		return
 	}
 	var hashedKey string
 	if utilizeCache == "true" {
@@ -64,9 +69,13 @@ func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {
 		cacheContent := cmd.DecryptContent(genParams.Username, genParams.Password, cacheRes)
 		if cacheContent != "" {
 			log.Printf("Cache found!")
-			temp := map[string]string{
-				"result": cacheContent,
+
+			temp := models.ApiResponse{
+				cacheContent,
+				"00",
+				"Success",
 			}
+
 			json.NewEncoder(w).Encode(temp)
 			return
 		}
@@ -81,9 +90,11 @@ func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Encrypted content : " + encResult)
 		h.repo.Save(hashedKey, encResult)
 	}
-
-	temp := map[string]string{
-		"result": genResult,
+	temp := models.ApiResponse{
+		genResult,
+		"00",
+		"Success",
 	}
+
 	json.NewEncoder(w).Encode(temp)
 }

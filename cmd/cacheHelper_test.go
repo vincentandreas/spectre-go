@@ -13,7 +13,7 @@ func TestHashParams(t *testing.T) {
 		t.Run(fmt.Sprintf("Testing [%v]", i), func(t *testing.T) {
 			actual := HashParams(parameters[i].input)
 			if actual != parameters[i].expectedHash {
-				t.Logf("expectedPasswd : %s: , actual: %s", parameters[i].expectedPasswd, actual)
+				t.Logf("expectedHash : %s , actual: %s", parameters[i].expectedHash, actual)
 				t.Fail()
 			}
 		})

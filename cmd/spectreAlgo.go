@@ -10,18 +10,16 @@ import (
 	"strings"
 )
 
-var tempCache = make(map[string]string)
-
 func convBigEndian(numb int) []byte {
 	numbByte := make([]byte, 4)
 	binary.BigEndian.PutUint32(numbByte, uint32(numb))
 	return numbByte
 }
 
-func newUserKey(username string, password string, purpose string) []byte {
+func newUserKey(username string, password string) []byte {
 	usernameBytes := []byte(username)
 	passwordBytes := []byte(password)
-	purposeBytes := []byte(purpose)
+	purposeBytes := []byte("com.lyndir.masterpassword")
 	saltLgth := len(purposeBytes) + 4 + len(usernameBytes)
 	//var userSalt []byte
 	userSalt := make([]byte, saltLgth)
@@ -149,11 +147,18 @@ var characters = map[string]string{
 	" ": " ",
 }
 
+var purposeMap = map[string]string{
+	"password":  "com.lyndir.masterpassword",
+	"loginName": "com.lyndir.masterpassword.login",
+	"answer":    "com.lyndir.masterpassword.answer",
+}
+
 func NewSiteResult(params models.GenSiteParam) string {
 	log.Printf("Running NewSiteResult")
 
-	userKey := newUserKey(params.Username, params.Password, params.KeyPurpose)
-	siteKey := newSiteKey(userKey, params.Site, params.KeyCounter, params.KeyPurpose, "")
+	purposeVal := purposeMap[params.KeyPurpose]
+	userKey := newUserKey(params.Username, params.Password)
+	siteKey := newSiteKey(userKey, params.Site, params.KeyCounter, purposeVal, "")
 	resTemplates := templates[params.KeyType]
 	resTemplate := resTemplates[int(siteKey[0])%len(resTemplates)]
 	var passRes strings.Builder
