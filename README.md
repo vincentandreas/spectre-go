@@ -14,15 +14,21 @@ With just username and spectre secret (master password), you don't have to remem
 
 Better try to test the app in https://spectre.app
 
+![Spectre web](docs/spectre-demo.gif)
+
+
 ### Original Features
 There's some features in spectre:
 
-- Choosing what you want to generate. It could be:
-
+- Choose what you want to generate. It could be:
+  - password
+  - site name (username)
+  - security answer
+- Choose the key type: 
   - Short, Medium, Long, Max length password
   - Pin
-  - Phrases (for security answer)
-  - Name
+  - Phrase (for security answer)
+  - Name (for username)
 - Set the keyCounter, to get different result in the same site. It's really useful for updating your password regularly.
 - All passwords are 100% generated locally.
 
@@ -31,10 +37,24 @@ There's some features in spectre:
 
 ### What's inside this repo?
 
-The repo contains main spectre algorithm to generate password. This repo based on newest algorithm version V3(2015:01)
-You'll get the same generated password. 
+The repo contains main spectre algorithm to generate password. This repo based on spectre newest algorithm version V3(2015:01)
+You'll get the same generated password from my repo and the official one.
 
-I made this using go language, to generate the password, you'll need to send the request via REST API, or you can modify the code, so you can do that locally.
+I made this using go language, to generate the password, you need to send the request via REST API.
+
+### API List
+
+#### Get health status [GET /api/health ]
+
+Response example:
+```
+{
+    "result": "OK"
+}
+```
+
+
+#### Generate password [POST /api/generatePassword ]
 
 Header:
 ```
@@ -42,40 +62,59 @@ Utilize-Cache : [true | false]
 ```
 
 Body:
-```json
-{
-    "username":"a",
-    "password":"a",
-    "site":"twitter.com",
-    "keyCounter":1,
-    "keyPurpose":"com.lyndir.masterpassword",
-    "keyType":"long"
-}
-```
+
 ```
 username    = your username
 password    = your master password (spectre secret)
 site        = site that you want to generate
-keyCounter  = counter for generating different password from the same site 
-keyPurpose  = com.lyndir.masterpassword
+keyCounter  = counter for generating different password from the same site, range from 1 - 4294967295 ((2^32) - 1)
+keyPurpose  = [password | loginName | answer]
 keyType     = [med | long | max | short | basic | pin | name | phrase]
 ```
 
-Example response:
+
+
+Request example:
 ```json
 {
-    "result": "RevoGupsWunl3-"
+    "username":"a", 
+    "password":"a", 
+    "site":"twitter.com", 
+    "keyCounter":1,
+    "keyPurpose":"password",
+    "keyType":"med"
+}
+```
+
+Response success example :
+
+```json
+{
+    "responseCode": "00", 
+    "responseMessage": "Success",
+    "result": "RevXep5+"
+}
+```
+
+Response failed example:
+```json
+{
+    "responseCode": "01",
+    "responseMessage": "Request not valid",
+    "result": ""
 }
 ```
 
 Result example:
 
 ![Go version - long](docs/long-go.png)
+
 ![Go version - med](docs/med-go.png)
 
 The official one:
 
 ![Ofc version - long](docs/long-web.png)
+
 ![Ofc version - med](docs/med-web.png)
 
 ### How I recreate this app?
@@ -93,7 +132,7 @@ It's consist of 3 main function:
 - newSiteKey : generate siteKey, based on userKeyData, and other params. Use [HMAC-SHA256](https://en.wikipedia.org/wiki/HMAC)
 - newSiteResult : generate password based on siteKey and choosen templates.
 
-The value of siteKey will be module to get character based on the position 
+The value of siteKey will be modulated to get character based on the position 
 
 ```go
 func NewSiteResult(params models.GenSiteParam) string {
@@ -141,11 +180,10 @@ Benchmark_intTest_genPassword_withOutCache-8           5         254846040 ns/op
 ### Future work:
 - Implement HTTPS, you don't want your plain password intercepted by someone (at least your own Burpsuite) right? 
 - Create docker image, so you can run the container, in CLI / REST mode
-- Edit the API request structure. 
 - Adding more feature, and enhance the code
 - Creating a nice web view. Nice view definition for me is: you can use the web easily. You don't have to be worry with the fancy animation effect, color. I won't create that. 
 
 ### Credit:
-https://gitlab.com/spectre.app
-https://tutorialedge.net/golang/go-encrypt-decrypt-aes-tutorial/
-https://medium.com/insiderengineering/integration-test-in-golang-899412b7e1bf
+- https://gitlab.com/spectre.app
+- https://tutorialedge.net/golang/go-encrypt-decrypt-aes-tutorial/
+- https://medium.com/insiderengineering/integration-test-in-golang-899412b7e1bf
