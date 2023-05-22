@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,6 +24,7 @@ func HandleRequests(h *BaseHandler) *mux.Router {
 
 	router.HandleFunc("/api/health", h.CheckHealth).Methods("GET")
 
+	router.HandleFunc("/", h.MainPage)
 	return router
 }
 
@@ -38,6 +40,14 @@ func (h *BaseHandler) CheckHealth(w http.ResponseWriter, r *http.Request) {
 		"result": "OK",
 	}
 	json.NewEncoder(w).Encode(temp)
+}
+
+func (h *BaseHandler) MainPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		//http.FileServer(http.Dir("static/"))
+		t, _ := template.ParseFiles("static/index.html")
+		t.Execute(w, nil)
+	}
 }
 
 func (h *BaseHandler) ProcessGenPasswd(w http.ResponseWriter, r *http.Request) {

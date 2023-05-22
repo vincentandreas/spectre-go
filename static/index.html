@@ -1,0 +1,201 @@
+<html>
+<head>
+    <title>Genpass-go</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        .input-group {
+            position: relative;
+        }
+
+        .input-group-addon {
+            /*line-height: 30px;*/
+            border: none;
+        }
+
+        .linkname {
+            display: none;
+        }
+
+        #generatedResult {
+            border-right: none;
+            /*height: 30px;*/
+            z-index: 5;
+        }
+
+        .copied {
+            opacity: 1;
+            position: absolute;
+            z-index: 3;
+            left: 55px;
+        }
+
+        @media (min-width: 768px) {
+            .copied {
+                left: 135px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="row">
+        <h2>Genpass-go</h2>
+    </div>
+<form action="/" method="post">
+<!--    <div class="column">-->
+    <div class="form-group row">
+        <label for="fullname">Full name:</label>
+        <input type="name" class="form-control" id="fullname">
+    </div>
+    <div class="form-group row">
+        <label for="secret">Password:</label>
+        <input type="password" class="form-control" id="secret">
+    </div>
+    <div class="form-group row">
+        <label for="siteUrl">Site domain:</label>
+        <input type="text" class="form-control" id="siteUrl">
+    </div>
+    <div class="form-group">
+    <div class="row">
+        <label for="sitePurpose">Site purpose:</label>
+    </div>
+    <div class="btn-group btn-group-justified row" id="sitePurpose">
+        <button type="button" class="btn btn-secondary" value="password">Site Password</button>
+        <button type="button" class="btn btn-secondary" value="loginName">Site Login Name</button>
+        <button type="button" class="btn btn-secondary" value="answer">Site Security Answer</button>
+    </div>
+    </div>
+    <div class="form-group">
+    <div class="row">
+        <label for="siteCounter">Site counter:</label>
+    </div>
+    <div class="row">
+        <input type="number" placeholder="1" min="1" max="100" value="1" id="siteCounter"/>
+    </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+        <label for="siteType">Site Type:</label>
+        </div>
+        <div class="row">
+        <select id="siteType">
+            <option value="max">Maximum</option>
+            <option value="long">Long</option>
+            <option value="med">Medium</option>
+            <option value="short">Short</option>
+            <option value="basic">Basic</option>
+            <option value="pin">PIN</option>
+            <option value="name">Name</option>
+            <option value="phrase">Phrase</option>
+        </select>
+        </div>
+    </div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" onclick="handleSubmit()">Generate password</button>
+    </div>
+<!--    </div>-->
+</form>
+    <div class="form-group">
+        <div class="row">
+            <label for="generatedResult">Result:</label>
+        </div>
+        <div class="row">
+        <div class="input-group">
+            <input type="text" id="generatedResult" class="form-control" value="" readonly>
+            <span id="copyButton" class="input-group-addon btn btn-primary" >
+              <label>Copy</label>
+            </span>
+            <span class="copied">Copied !</span>
+        </div>
+        </div>
+    </div>
+</div>
+<script>
+        function copyToClipboard(elem) {
+            var target = elem;
+            var currentFocus = document.activeElement;
+
+            target.focus();
+            target.setSelectionRange(0, target.value.length);
+            let succeed;
+
+            try {
+                navigator.clipboard.writeText(target.value);
+                succeed = true;
+            } catch (e) {
+                console.warn(e);
+                succeed = false;
+            }
+
+            if (currentFocus && typeof currentFocus.focus === "function") {
+                currentFocus.focus();
+            }
+
+            if (succeed) {
+                $(".copied").animate({ top: -25, opacity: 0 }, 700, function() {
+                    $(this).css({ top: 0, opacity: 1 });
+                });
+            }
+
+            return succeed;
+        }
+
+        $("#copyButton, #generatedResult").on("click", function() {
+            copyToClipboard(document.getElementById("generatedResult"));
+        });
+
+    let selSitePurpose = "";
+
+    $('#sitePurpose button').on('click', function() {
+        var thisBtn = $(this);
+        console.log("masuk sni");
+        thisBtn.addClass('active').siblings().removeClass('active');
+        var btnText = thisBtn.text();
+        var btnValue = thisBtn.val();
+        console.log(btnText + ' - ' + btnValue);
+        selSitePurpose = btnValue;
+    });
+
+    function handleSubmit(){
+            let username = document.getElementById("fullname").value;
+            let passwd = document.getElementById("secret").value;
+            let site = document.getElementById("siteUrl").value;
+            let counter = document.getElementById("siteCounter").value;
+            let siteTypeEl = document.getElementById("siteType");
+            let keytype = siteTypeEl.options[siteTypeEl.selectedIndex].value;
+            let passResultElement = document.getElementById("generatedResult");
+            let jsonObj = {
+                username: username,
+                password: passwd,
+                site: site,
+                keyCounter: parseInt(counter),
+                keyPurpose: selSitePurpose,
+                keyType: keytype
+            }
+            const fetchPromise = fetch("/api/generatePassword", {
+                method: "POST",
+                body: JSON.stringify(jsonObj),
+                headers: {
+                    "Content-type": "application/json;"
+                }
+            });
+
+            fetchPromise.then((response) => {
+                return response.json();
+            })
+                .then((rjson) => {
+                    console.log(rjson);
+                    console.log(rjson["result"]);
+                    passResultElement.value = rjson["result"];
+            });
+    }
+</script>
+</body>
+</html>
